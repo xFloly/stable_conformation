@@ -6,6 +6,8 @@ from torch.backends import cudnn
 import torch.optim as optim
 from tqdm import tqdm
 
+from utils.get_loss_fn import get_loss_fn
+
 
 def training_loop(config):
     seed = config['seed']
@@ -48,7 +50,6 @@ def training_loop(config):
     )
 
     loss_fn = get_loss_fn(config['loss_fn'])(config)
-    mse_loss_fn = torch.nn.MSELoss()
 
     initial_epoch = 0
     global_step = 0
