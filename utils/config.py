@@ -67,4 +67,7 @@ def get_config_eval():
 
         # Metrics
         "grid_size": 3,  # grid size for f1,recal,prec
+
+        # logging
+        "epochs_per_log": 100,  # Number of epochs between logging
     }

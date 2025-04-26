@@ -80,7 +80,9 @@ def training_loop(config):
 
             global_step += 1
 
-            # logging here??
+            if epoch % config['epochs_per_log'] == 0:
+                pass
+                # logging
 
             scheduler.step()
             avg_loss = total_loss / len(train_loader)
