@@ -23,7 +23,7 @@ def training_loop(config):
     train_set = Dataset(config)
     test_set = Dataset(config)
 
-    trian_loader = DataLoader(
+    train_loader = DataLoader(
         train_set,
         batch_size=config['batch_size'],
         shuffle=True,
