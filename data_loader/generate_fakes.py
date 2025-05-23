@@ -25,7 +25,11 @@ def load_mol(path):
 
 
 def save_mol(mol, path):
-    Chem.MolToMolFile(mol, path)
+    writer = Chem.SDWriter(path)
+    for conf in mol.GetConformers():
+        writer.write(mol, confId=conf.GetId())
+    writer.close()
+
 
 
 def generate_valid_augmented_set(input_dir, output_dir, amount, threshold, seed,**perturb_kwargs):
@@ -39,7 +43,12 @@ def generate_valid_augmented_set(input_dir, output_dir, amount, threshold, seed,
             ligand_id = os.path.splitext(filename)[0]
             ligand_path = os.path.join(input_dir, filename)
             
-            original = load_mol(ligand_path)
+            try:
+                original = load_mol(ligand_path)
+            except Exception as e:
+                print(f"{ligand_id}: Skipping due to error: {e}")
+                continue
+
             conformers = []
 
             # Add the reference conformation
@@ -69,7 +78,8 @@ def generate_valid_augmented_set(input_dir, output_dir, amount, threshold, seed,
             for conf in conformers:
                 multi_mol.AddConformer(conf, assignId=True)
 
-            output_path = os.path.join(output_dir, f"{ligand_id}.mol")
+            output_path = os.path.join(output_dir, f"{ligand_id}.sdf")
+
             save_mol(multi_mol, output_path)
             print(f"{ligand_id}: {accepted} conformers accepted → saved to {output_path}")
 
