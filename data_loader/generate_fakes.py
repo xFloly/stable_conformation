@@ -32,7 +32,11 @@ def save_mol(mol, path):
 
 
 
-def generate_valid_augmented_set(input_dir, output_dir, amount, threshold, seed,**perturb_kwargs):
+def generate_valid_augmented_set(input_dir, output_dir, amount, threshold, seed,
+                                 enable_displacement, enable_rotation,
+                                 perturbation_fraction,rotation_fraction,
+                                   **perturb_kwargs):
+    
     os.makedirs(output_dir, exist_ok=True)
 
     #SEED FOR REPRODUCTABILITY
@@ -57,13 +61,29 @@ def generate_valid_augmented_set(input_dir, output_dir, amount, threshold, seed,
             accepted = 0
             attempts = 0
             max_attempts = amount * 100
-            conformation = original
+
+            num_atoms = original.GetNumAtoms()
+            atom_indices = np.arange(num_atoms)
 
             while accepted < amount and attempts < max_attempts:
                 rmsd_val = 0.
+                conformation = original
+
+                if enable_displacement:
+                    n_to_perturb = int(perturbation_fraction * num_atoms)
+                    perturb_atoms_ids = np.random.choice(atom_indices, size=n_to_perturb, replace=False)
+                else:
+                    perturb_atoms_ids = None
+
+                if enable_rotation:
+                    n_to_rotate = int(rotation_fraction * num_atoms)
+                    rotate_atoms_ids = np.random.choice(atom_indices, size=n_to_rotate, replace=False)
+                else:
+                    rotate_atoms_ids = None
+
 
                 while threshold > rmsd_val:
-                    perturbed = perturb_structure(conformation, **perturb_kwargs)
+                    perturbed = perturb_structure(conformation,enable_displacement=enable_displacement,enable_rotation=True, perturb_atoms_ids=perturb_atoms_ids, rotate_atoms_ids=rotate_atoms_ids, **perturb_kwargs)
                     rmsd_val = calculate_rmsd(original, perturbed)
                     conformation = perturbed 
 

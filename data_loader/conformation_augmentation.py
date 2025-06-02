@@ -23,8 +23,11 @@ def perturb_structure(
     max_displacement: float = 0.05,
     max_displacement_h: float = 0.02,
     max_rotation_angle: float = 5.0,     # degrees
-    perturbation_fraction: float = 0.15, # fraction of atoms displaced
-    rotation_fraction: float = 0.25      # fraction of atoms rotated
+    # perturbation_fraction: float = 0.15, # fraction of atoms displaced
+    # rotation_fraction: float = 0.25,      # fraction of atoms rotated
+    enable_random_choice: bool = True,
+    perturb_atoms_ids: list[int] = None,
+    rotate_atoms_ids: list[int] = None 
 ) -> Chem.Mol:
     """
     Apply random perturbations to a RDKit molecule.
@@ -45,11 +48,10 @@ def perturb_structure(
     new_mol = Chem.Mol(mol)
     coords = get_coordinates(new_mol)
     num_atoms = new_mol.GetNumAtoms()
-    atom_indices = np.arange(num_atoms)
+    # atom_indices = np.arange(num_atoms)
 
     if enable_displacement:
-        n_to_perturb = int(perturbation_fraction * num_atoms)
-        selected_indices = np.random.choice(atom_indices, size=n_to_perturb, replace=False)
+        selected_indices = perturb_atoms_ids
 
         for atom_idx in selected_indices:
             atom = new_mol.GetAtomWithIdx(int(atom_idx))
@@ -61,16 +63,17 @@ def perturb_structure(
             coords[atom_idx] += disp
 
     if enable_rotation:
-        n_to_rotate = int(rotation_fraction * num_atoms)
-        if n_to_rotate > 0:
-            selected_indices = np.random.choice(atom_indices, size=n_to_rotate, replace=False)
+        selected_indices = rotate_atoms_ids
 
-            angle_deg = np.random.uniform(-max_rotation_angle, max_rotation_angle)
-            axis = np.random.normal(size=3)
-            axis /= np.linalg.norm(axis)
-            rotation = R.from_rotvec(np.deg2rad(angle_deg) * axis)
+        angle_deg = np.random.uniform(-max_rotation_angle, max_rotation_angle)
+        axis = np.random.normal(size=3)
+        axis /= np.linalg.norm(axis)
+        rotation = R.from_rotvec(np.deg2rad(angle_deg) * axis)
 
-            coords[selected_indices] = rotation.apply(coords[selected_indices])
+        coords[selected_indices] = rotation.apply(coords[selected_indices])
 
     set_coordinates(new_mol, coords)
     return new_mol
+
+
+
