@@ -28,6 +28,7 @@ def generate_pruned_diverse_confs(
     mol = Chem.AddHs(mol)
     used_bins = set()
     selected_confs = []
+    rejected_confs = []
 
     max_rmsd = rmsd_bin_size * (num_output_confs - 1)
     final_mol = Chem.AddHs(mol)
@@ -72,15 +73,15 @@ def generate_pruned_diverse_confs(
                 conf = temp_mol.GetConformer(cid)
                 coords = conf.GetPositions()
 
-                try:
-                    opt_mol = Chem.Mol(temp_mol)
-                    if AllChem.MMFFHasAllMoleculeParams(opt_mol):
-                        AllChem.MMFFOptimizeMolecule(opt_mol, confId=cid)
-                    else:
-                        AllChem.UFFOptimizeMolecule(opt_mol, confId=cid)
-                    coords = opt_mol.GetConformer(cid).GetPositions()
-                except:
-                    pass
+                # try:
+                #     opt_mol = Chem.Mol(temp_mol)
+                #     if AllChem.MMFFHasAllMoleculeParams(opt_mol):
+                #         AllChem.MMFFOptimizeMolecule(opt_mol, confId=cid)
+                #     else:
+                #         AllChem.UFFOptimizeMolecule(opt_mol, confId=cid)
+                #     coords = opt_mol.GetConformer(cid).GetPositions()
+                # except:
+                #     pass
 
                 conf_new = Chem.Conformer(final_mol.GetNumAtoms())
                 for i in range(final_mol.GetNumAtoms()):
@@ -97,7 +98,9 @@ def generate_pruned_diverse_confs(
                 if bin_index not in used_bins:
                     selected_confs.append(new_cid)
                     used_bins.add(bin_index)
-                    log(f"→ Konformer {new_cid}: RMSD={rmsd:.3f} Å, bin={bin_index} [✓✓✓✓] Dodany", filename, start_time)
+                    # log(f"→ Konformer {new_cid}: RMSD={rmsd:.3f} Å, bin={bin_index} [✓✓✓✓] Dodany", filename, start_time)
+                else:
+                    rejected_confs.append(new_cid)
 
                 if len(selected_confs) >= num_output_confs:
                     break
@@ -106,7 +109,21 @@ def generate_pruned_diverse_confs(
                 log(f"[!] Błąd przy przetwarzaniu konformera: {e}", filename, start_time)
                 continue
 
+    # Uzupełnianie brakujących konformerów losowo
+    if len(selected_confs) < num_output_confs:
+        missing = num_output_confs - len(selected_confs)
+        log(f"[!] Brakuje {missing} konformerów – uzupełniam losowo z odrzuconych", filename, start_time)
+        np.random.shuffle(rejected_confs)
+        for new_cid in rejected_confs[:missing]:
+            selected_confs.append(new_cid)
+            log(f"→ Dodano losowy konformer {new_cid} (bin duplikat)", filename, start_time)
+
+    log(f"[DEBUG] Wybrano {len(selected_confs)} konformerów: {selected_confs}", filename, start_time)
+    log(f"[DEBUG] Odrzucone (do losowania): {len(rejected_confs)} konformerów", filename, start_time)
+
     return final_mol, selected_confs
+
+
 
 
 def process_file(args):
@@ -156,7 +173,7 @@ def process_file(args):
 def main():
     input_dir = "./data_loader/data/mol_subset"
     output_base = "augmented"
-    num_confs_target = 25
+    num_confs_target = 20
 
     input_paths = [
         (os.path.join(input_dir, fname), output_base, num_confs_target)
