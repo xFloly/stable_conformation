@@ -56,15 +56,24 @@ def generate_valid_augmented_set(input_dir, output_dir, amount, threshold, seed,
 
             accepted = 0
             attempts = 0
-            max_attempts = amount * 5
+            max_attempts = amount * 100
+            conformation = original
 
             while accepted < amount and attempts < max_attempts:
-                perturbed = perturb_structure(original, **perturb_kwargs)
-                rmsd_val = calculate_rmsd(original, perturbed)
+                rmsd_val = 0.
 
-                if rmsd_val <= threshold:
+                while threshold > rmsd_val:
+                    perturbed = perturb_structure(conformation, **perturb_kwargs)
+                    rmsd_val = calculate_rmsd(original, perturbed)
+                    conformation = perturbed 
+
+     
+                if threshold <= rmsd_val <= threshold+0.2:
                     conformers.append(perturbed.GetConformer())
+                    print(f"{ligand_id}: Accepted conformer with RMSD {rmsd_val:.2f} (threshold: {threshold})")
                     accepted += 1
+                    if accepted == amount:
+                        break
 
                 attempts += 1
 
