@@ -57,6 +57,8 @@ Even if a conformation is far from anything seen in training (e.g., a highly dis
 
 We evaluate this both on randomly noised conformations and on realistic conformations generated using RDKit’s ETKDG method.
 
+<img src="images/hypothesis1.png" alt="LogP-values-vs-RMSD" width="300"/>
+
 ---
 
 ### Hypothesis 2: Energy–Log Probability Correlation
