@@ -19,16 +19,13 @@ from data_loader.conformation_similarity import calculate_aligned_rmsd
 
 # ----- CONFIG -----
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-mol_dir = './data/mol_subset/'
+# mol_dir = './data/mol_subset/'
 # multi_augmented_root = './data/augmented_rmsd_0_1-2_every_0_2/'
 # multi_augmented_root = './data/aug_alchem'
 multi_augmented_root = './data/new'
 num_samples = None  # Set to None to process all, or an integer
 
-# ----- LOAD MODEL -----
-# To silence the FutureWarning, you can explicitly set weights_only=True if your checkpoint
-# doesn’t require loading arbitrary Python objects. E.g.:
-# checkpoint = torch.load('./models/ckpt_drugs.pt', map_location=device, weights_only=True)
+
 checkpoint = torch.load('./models/ckpt_drugs.pt', map_location=device)
 args = checkpoint['args']
 seed_all(args.seed)
@@ -165,6 +162,8 @@ def compute_logps_for_all_conformers(mols, model, device):
 
 # ----- MAIN PROCESSING LOOP -----
 
+# ----- MAIN PROCESSING LOOP -----
+
 augmented_folders = sorted([f for f in Path(multi_augmented_root).iterdir() if f.is_dir()])
 
 for augmented_dir_path in augmented_folders:
@@ -180,33 +179,30 @@ for augmented_dir_path in augmented_folders:
     z_scores = []
     results = []
 
-    mol_files = [f for f in os.listdir(mol_dir) if f.endswith('.mol')]
-    if num_samples:
-        random.shuffle(mol_files)
-        mol_files = mol_files[:num_samples]
+    ligand_folders = sorted([f for f in Path(augmented_dir).iterdir() if f.is_dir()])
+    missing_files = 0
 
-    for filename in mol_files:
-        ligand_id = os.path.splitext(filename)[0]
-        original_path = os.path.join(mol_dir, filename)
+    for ligand_folder in ligand_folders:
+        ligand_id = ligand_folder.name
         augmented_path = os.path.join(augmented_dir, ligand_id, f"{ligand_id}.sdf")
 
         if not os.path.exists(augmented_path):
-            print(f"Missing: {augmented_path}")
+            print(f"[WARNING] Missing augmented SDF for ligand {ligand_id} at path: {augmented_path}")
+            missing_files += 1
             continue
 
         supplier = Chem.SDMolSupplier(augmented_path, removeHs=False)
         mols = [mol for mol in supplier if mol is not None]
 
         if not mols:
-            print(f"Could not parse {augmented_path} or no valid molecules found.")
+            print(f"[WARNING] Could not parse {augmented_path} or no valid molecules found.")
             continue
 
         print(f"\n{ligand_id} — {len(mols)} conformations")
-        
+
         # --- Batched logp computation for all conformers ---
         logps = compute_logps_for_all_conformers(mols, model, device)
 
-        # If everything was NaN or empty, skip
         if not any(not pd.isna(lp) for lp in logps):
             continue
 
@@ -250,7 +246,6 @@ for augmented_dir_path in augmented_folders:
 
         total += 1
 
-        # The "original" conformation is presumably the first
         original_logp = valid_logps[0]
         sorted_logps = sorted(valid_logps, reverse=True)
         rank = sorted_logps.index(original_logp) + 1
@@ -261,13 +256,14 @@ for augmented_dir_path in augmented_folders:
         std_logp = (sum((x - mean_logp) ** 2 for x in valid_logps) / len(valid_logps)) ** 0.5
         z_score = (original_logp - mean_logp) / std_logp if std_logp > 0 else 0.0
         next_best = max(valid_logps[1:]) if len(valid_logps) > 1 else float('-inf')
-        gap = original_logp - next_best
 
         sum_ranks += rank
         top1_count += top1
         top3_count += top3
         top5_count += top5
         z_scores.append(z_score)
+
+    print(f"\n[INFO] Total missing ligand SDFs in {augmented_dir_path.name}: {missing_files}/{len(ligand_folders)}")
 
     # Save results for this folder
     output_csv = f"results_{augmented_dir_path.name}.csv"

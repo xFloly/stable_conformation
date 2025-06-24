@@ -1,0 +1,14 @@
+input_dir: ./data/mol_subset
+output_dir: ./data/augmented
+amount: 5
+threshold: 1.2
+
+seed: 42
+# Augmentation options
+enable_displacement: true
+enable_rotation: true
+max_displacement: 0.04
+max_displacement_h: 0.015
+max_rotation_angle: 10.0
+perturbation_fraction: 0.2
+rotation_fraction: 0.1

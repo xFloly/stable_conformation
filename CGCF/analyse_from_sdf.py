@@ -13,6 +13,7 @@ from utils.misc import seed_all
 from utils.transforms import get_standard_transforms
 from data_loader.conformation_similarity import calculate_aligned_rmsd
 
+
 # ----- CONFIG -----
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 mol_dir = './data/mol_subset/'
@@ -162,6 +163,23 @@ for filename in mol_files:
     spearman, _ = spearmanr(logps[1:], rmsds)
     pearson, _ = pearsonr(logps[1:], rmsds)
     print(f" → Spearman Correlation: {spearman:.3f}, Pearson Correlation: {pearson:.3f}")
+    # Pomijamy pierwszy (oryginalny) logp i jego RMSD, bo RMSD=0
+    conformer_logps = logps[1:]
+    conformer_rmsds = rmsds
+
+    # Oblicz rankingi: najniższy numer to najwyższe logp
+    sorted_indices = sorted(range(len(conformer_logps)), key=lambda i: -conformer_logps[i])
+    ranks = [sorted_indices.index(i) + 1 for i in range(len(conformer_logps))]
+
+    # Teraz można liczyć korelacje
+    from scipy.stats import spearmanr, pearsonr
+
+    spearman_rank_rmsd, _ = spearmanr(ranks, conformer_rmsds)
+    pearson_rank_rmsd, _ = pearsonr(ranks, conformer_rmsds)
+
+    print(f" → Spearman Correlation (Rank vs. RMSD): {spearman_rank_rmsd:.3f}")
+    print(f" → Pearson Correlation (Rank vs. RMSD): {pearson_rank_rmsd:.3f}")
+
 
 if total > 0:
     avg_rank = sum_ranks / total
