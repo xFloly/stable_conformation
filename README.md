@@ -17,9 +17,9 @@ experiments. This may include scripts to generate or load molecular structures a
 conformers.
 
 
-- **`analyse_perturb.py`** WOJTEK
+- **`analyse_perturb.py`** Tests the EdgeCNF model’s sensitivity by perturbing atomic coordinates with different noise levels. Scores the original and progressively noisier conformations, demonstrating how log-likelihoods change with increasing structural distortion.
 
-- **`analyse_from_sdf.py`** WOJTEK
+- **`analyse_from_sdf.py`** Evaluates log-likelihoods for original and generated conformations from SDF files using the pretrained EdgeCNF model. Ranks the original structure, computes RMSD and correlation metrics, and summarizes model performance across molecules.
 
 - **`correlation_analysis.ipynb`** – Jupyter Notebook containing the statistical analysis and
 visualizations for our experiments. This notebook aggregates results (e.g., from the above scripts)
