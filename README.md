@@ -68,6 +68,14 @@ Since CGCF was trained on ensembles of low-energy conformers, we hypothesize tha
 A Spearman inverse correlation would support the idea that the flow’s probability landscape approximates the true energy surface — i.e., lower-energy conformers should have higher probabilities.
 
 Our analysis shows trends indicating this relationship, although not perfectly — likely due to the model being trained on likelihood, not energy, directly.
+Few examples:
+
+| SMILES | Spearman | Pearson |
+|--------|----------|---------|
+| `CO[C@H]1CC[C@H]1O[CH][NH]` | -0.6321 (p = 0.0115) | -0.7790 (p = 0.0006) |
+| `O=C1CC(=O)[C@@H](O)CO1` | -0.1905 (p = 0.6514) | -0.2597 (p = 0.5346) |
+| `C[C@@H](O)C#C[C@H]1C[C@H]1C` | -0.4939 (p = 0.0014) | -0.3203 (p = 0.0468) |
+
 
 ## Setup and Usage
 
