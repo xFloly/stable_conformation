@@ -83,7 +83,7 @@ conformers.
 - **`correlation_analysis.ipynb`** – Jupyter Notebook containing the statistical analysis and
 visualizations for **hypothesis 2** .
 
-## Setup and Usage IGNACY TO ZROB całe Instalation Usadge Data
+## Setup and Usage
 
 To reproduce the experiments and use the code in this repository, follow these steps:
 
@@ -100,23 +100,27 @@ Ensure you have Anaconda or Miniconda installed. Use the provided `environment.y
 conda env create -f environment.yaml
 conda activate stable_conf
 ```
+### 3. Calculate Log-Probability
 
-### 3. Obtain Pre-trained CGCF Model Weights
-The CGCF model used here should be pre-trained on the GEOM dataset for optimal results. If the pretrained checkpoint is not included in this repository (due to file size), you will need to obtain it yourself:
+The main functionality resides within a modified subtree module:
 
-Download a suitable checkpoint from the original [CGCF](https://github.com/MinkaiXu/CGCF-ConfGen) repository or project page. 
-
-Alternatively, you may train a CGCF model on the GEOM dataset yourself (note that this is time-consuming and not the focus of this project). 
-
-Once you have the model file (e.g., `ckpt_drugs.pt`), place it in an appropriate location — for example:  IGNACY - zweryfikuj
-
-```bash
-model/CGCF/ckpt_geom.pt
+```sh
+cd model/CGCF/
 ```
-Or specify the path in the configuration when running scripts. The code will attempt to load this checkpoint automatically.
 
-### 4. Calcualte log-probability 
-IGNACY - dopisz jak to odpalałeś
+To run predictions, you first need to prepare the dataset. For our purposes, we used the dataset linked below and placed it in the `/data/` directory.
+
+To start the prediction process, run the following command in the terminal:
+
+```sh
+python analyse_from_sdf_all.py
+```
+
+If you are using a different dataset, make sure to adjust the file _`analyse_from_sdf_all.py`_ accordingly.
+
+---
 
 ## Data
-For our course experiments and data analysis, we used the dataset located [here](somelink).
+
+For our course experiments and data analysis, we used the dataset available [here](https://ujchmura-my.sharepoint.com/:f:/g/personal/filip_soszynski_student_uj_edu_pl/EsX49nFKA8ZFuLXY6vcO6KwBptFEkI_EUPOb_ILuRzbvwQ?e=psc7ap).
+
