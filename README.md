@@ -68,17 +68,13 @@ Few examples:
 
 The repository is organized into the following main components:
 
-- **`model/`** – Contains the code for the CGCF normalizing flow model, adapted for this project. This includes utilities needed to load the pretrained model and evaluate log-probabilities of conformations. IGNACY
+- **`model/`** – Contains the code for the CGCF normalizing flow model, adapted for this project. This includes utilities needed to load the pretrained model and evaluate log-probabilities of conformations.
 
 - **`datasets/`** - Code and data utilities for handling molecular conformations used in our
 experiments. This may include scripts to generate or load molecular structures and their
 conformers.
 
 - **`random_noice_anaysis.ipynb`** - Jupyter notebook containing analysis and visualisation of **hypothesis 1** veryfing the local optima in random noice. 
-
-- **`analyse_perturb.py`** Tests the EdgeCNF model’s sensitivity by perturbing atomic coordinates with different noise levels. Scores the original and progressively noisier conformations, demonstrating how log-likelihoods change with increasing structural distortion.
-
-- **`analyse_from_sdf.py`** Evaluates log-likelihoods for original and generated conformations from SDF files using the pretrained EdgeCNF model. Ranks the original structure, computes RMSD and correlation metrics, and summarizes model performance across molecules.
 
 - **`correlation_analysis.ipynb`** – Jupyter Notebook containing the statistical analysis and
 visualizations for **hypothesis 2** .
