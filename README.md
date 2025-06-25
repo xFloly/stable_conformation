@@ -95,18 +95,38 @@ cd stable_conformation
 ```
 
 ### 2. Create the Conda Environment
-Ensure you have Anaconda or Miniconda installed. Use the provided `environment.yaml` file to set up the environment with all required dependencies:
-```bash
-conda env create -f environment.yaml
-conda activate stable_conf
-```
-### 3. Calculate Log-Probability
 
 The main functionality resides within a modified subtree module:
 
 ```sh
 cd model/CGCF/
 ```
+
+Create and activate the environment using:
+
+```bash
+
+conda env create -f env.yml
+conda activate CGCF
+```
+
+### 3. Install PyTorch Geometric
+
+Due to dependency constraints, PyTorch Geometric and its companion packages must be installed manually:
+
+```bash
+pip install torch-scatter==2.0.5 \
+            torch-sparse==0.6.8 \
+            torch-spline-conv==1.2.0 \
+            -f https://data.pyg.org/whl/torch-1.6.0+cu101.html
+
+pip install torch-geometric==1.7.2
+```
+
+Make sure these versions match your PyTorch (`1.6.0`) and CUDA (`10.1`) configuration.
+
+
+### 4. Calculate Log-Probability
 
 To run predictions, you first need to prepare the dataset. For our purposes, we used the dataset linked below and placed it in the `/data/` directory.
 
