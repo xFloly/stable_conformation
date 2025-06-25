@@ -2,28 +2,9 @@
 
 This repository contains code and experiments for **Stable Conformation Probability Analysis**, a course project in machine learning for drug design. The project investigates how effectively a flow-based generative model can evaluate and predict the stability of molecular conformations.
 
-We build on the [Continuous Graph Conformation Flow (CGCF)](https://github.com/DeepGraphLearning/CGCF) model by Xu *et al.* (ICLR 2021), using a pre-trained CGCF (trained on the [GEOM](https://github.com/learningmatter-mit/geom) dataset of molecular conformations) as a normalizing flow to assign probabilities (log-likelihoods) to different 3D conformations of molecules.
+We build on the [Continuous Graph Conformation Flow (CGCF)](https://github.com/MinkaiXu/CGCF-ConfGen) model by Xu *et al.* (ICLR 2021), using a pre-trained CGCF (trained on the [GEOM](https://github.com/learningmatter-mit/geom) dataset of molecular conformations) as a normalizing flow to assign probabilities (log-likelihoods) to different 3D conformations of molecules.
 
-To evaluate the model's ability to recognize stable structures, we simulate suboptimal conformers through controlled perturbations of atom positions and molecular orientations. We then compare the CGCF model’s probability estimates against classical methods such as MMFF (Merck Molecular Force Field) optimizations. As a primary metric of deviation, we use **Root-Mean-Square Deviation (RMSD)** to quantify how far a perturbed conformation strays from a known stable reference structure.
-
-## Repository Structure
-
-The repository is organized into the following main components:
-
-- **`model/`** – Contains the code for the CGCF normalizing flow model, adapted for this project. This includes utilities needed to load the pretrained model and evaluate log-probabilities of conformations. IGNACY
-
-- **`datasets/`** - Code and data utilities for handling molecular conformations used in our
-experiments. This may include scripts to generate or load molecular structures and their
-conformers.
-
-
-- **`analyse_perturb.py`** Tests the EdgeCNF model’s sensitivity by perturbing atomic coordinates with different noise levels. Scores the original and progressively noisier conformations, demonstrating how log-likelihoods change with increasing structural distortion.
-
-- **`analyse_from_sdf.py`** Evaluates log-likelihoods for original and generated conformations from SDF files using the pretrained EdgeCNF model. Ranks the original structure, computes RMSD and correlation metrics, and summarizes model performance across molecules.
-
-- **`correlation_analysis.ipynb`** – Jupyter Notebook containing the statistical analysis and
-visualizations for our experiments. This notebook aggregates results (e.g., from the above scripts)
-and produces 
+To evaluate the model's ability to recognize stable structures, we simulate suboptimal conformers through controlled perturbations of atom positions and molecular orientations. As a primary metric of deviation, we use **Root-Mean-Square Deviation (RMSD)** to quantify how far a perturbed conformation strays from a known stable reference structure.
 
 ## Methodology and Hypotheses
 
@@ -35,11 +16,14 @@ In the absence of "bad" conformations in the provided data (the CIF crystal stru
 - **Orientation perturbation**: The entire molecule is randomly rotated and translated before evaluation. *(While RMSD calculations typically align structures to cancel out overall rotations/translations, we still randomize orientation to ensure the model’s evaluation is orientation-invariant and to diversify initial states for force-field optimization.)*
 
 ![RMSD-vs-logP-perturb](images/rmsd_logp_random_noise.png)
+
 - **Generating more realistic conformations**:  
   For generating more realistic conformations, we use:
   `rdkit.Chem.rdDistGeom.EmbedMultipleConfs`,  
   which employs Experimental-Torsion Knowledge Distance Geometry (ETKDG). This method incorporates torsion angle preferences derived from the Cambridge Structural Database (CSD), resulting in physically plausible 3D geometries.
+
 ![RMSD-vs-logP-etkdg](images/rmsd_logp_rdkit_etkdg.png)
+
 We generate a range of perturbed conformers per molecule, from near-native (very small RMSD) to heavily distorted (large RMSD). **RMSD (Root Mean Square Deviation)** is computed after aligning each perturbed conformation to the reference structure and serves as a quantitative measure of distortion — higher RMSD indicates a more significant departure from the stable conformation.
 
 
@@ -57,7 +41,8 @@ Even if a conformation is far from anything seen in training (e.g., a highly dis
 
 We evaluate this both on randomly noised conformations and on realistic conformations generated using RDKit’s ETKDG method.
 
-<img src="images/hypothesis1.png" alt="LogP-values-vs-RMSD" width="300"/>
+<img src="images/hypothesis1_2.png" alt="LogP-values-vs-RMSD for random noice with dividing into treshhold bins" width="600"/>
+<img src="images/hypothesis1.png" alt="LogP-values-vs-RMSD for realistic conformations" width="300"/>
 
 ---
 
@@ -79,7 +64,26 @@ Few examples:
 | `C[C@@H](O)C#C[C@H]1C[C@H]1C` | -0.4939 (p = 0.0014) | -0.3203 (p = 0.0468) |
 
 
-## Setup and Usage
+## Repository Structure
+
+The repository is organized into the following main components:
+
+- **`model/`** – Contains the code for the CGCF normalizing flow model, adapted for this project. This includes utilities needed to load the pretrained model and evaluate log-probabilities of conformations. IGNACY
+
+- **`datasets/`** - Code and data utilities for handling molecular conformations used in our
+experiments. This may include scripts to generate or load molecular structures and their
+conformers.
+
+- **`random_noice_anaysis.ipynb`** - Jupyter notebook containing analysis and visualisation of **hypothesis 1** veryfing the local optima in random noice. 
+
+- **`analyse_perturb.py`** Tests the EdgeCNF model’s sensitivity by perturbing atomic coordinates with different noise levels. Scores the original and progressively noisier conformations, demonstrating how log-likelihoods change with increasing structural distortion.
+
+- **`analyse_from_sdf.py`** Evaluates log-likelihoods for original and generated conformations from SDF files using the pretrained EdgeCNF model. Ranks the original structure, computes RMSD and correlation metrics, and summarizes model performance across molecules.
+
+- **`correlation_analysis.ipynb`** – Jupyter Notebook containing the statistical analysis and
+visualizations for **hypothesis 2** .
+
+## Setup and Usage IGNACY TO ZROB całe Instalation Usadge Data
 
 To reproduce the experiments and use the code in this repository, follow these steps:
 
@@ -114,4 +118,5 @@ Or specify the path in the configuration when running scripts. The code will att
 ### 4. Calcualte log-probability 
 IGNACY - dopisz jak to odpalałeś
 
+## Data
 For our course experiments and data analysis, we used the dataset located [here](somelink).
