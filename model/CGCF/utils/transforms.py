@@ -52,7 +52,9 @@ class AddHigherOrderEdges(object):
 
         data.bond_edge_index = data.edge_index  # Save original edges
         data.edge_index, data.edge_type = coalesce(new_edge_index, new_edge_type.long(), N, N)
-        edge_index_1, data.edge_order = coalesce(new_edge_index, edge_order.long(), N, N)
+        # edge_index_1, data.edge_order = coalesce(new_edge_index, edge_order.long(), N, N)
+        edge_index_1, edge_order = coalesce(new_edge_index, None, N, N)
+        data.edge_order = edge_order
         assert (data.edge_index == edge_index_1).all()
 
         return data
