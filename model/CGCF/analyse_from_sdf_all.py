@@ -20,14 +20,13 @@ from conformation_similarity import calculate_aligned_rmsd
 
 # ----- CONFIG -----
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-# mol_dir = './data/mol_subset/'
-# multi_augmented_root = './data/augmented_rmsd_0_1-2_every_0_2/'
-# multi_augmented_root = './data/aug_alchem'
-multi_augmented_root = './data/new'
+
+multi_augmented_root = './data/augmented_rmsd_0_1-2_every_0_2/'
+
 num_samples = None  # Set to None to process all, or an integer
 
 
-checkpoint = torch.load('./models/ckpt_drugs.pt', map_location=device)
+checkpoint = torch.load('./pretrained/ckpt_drugs.pt', map_location=device)
 args = checkpoint['args']
 seed_all(args.seed)
 tf = get_standard_transforms(order=args.aux_edge_order)
